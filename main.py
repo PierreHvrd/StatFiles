@@ -60,7 +60,7 @@ def analyse_files_of_folder(path_folder_to_analyse):
     current_folder.size_go = current_folder.size
     current_folder.nb_folders_go = len(current_folder.sub_folders)
     current_folder.nb_files_go = current_folder.nb_files
-    current_folder.files_by_type_go = copy.deepcopy(current_folder.files_by_type)54
+    current_folder.files_by_type_go = copy.deepcopy(current_folder.files_by_type)
 
     # update the global stats
     for sub_folder in current_folder.sub_folders:
