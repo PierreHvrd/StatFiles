@@ -3,15 +3,18 @@
 from tkinter import filedialog
 import os
 from Folder import Folder
+from show_in_proper_unit import show_in_proper_unit
+import copy
 
 # ask the user the path of the directory he wants to have stats on
 
-path = filedialog.askdirectory(initialdir="../", title="Open a folder")
+# path = filedialog.askdirectory(initialdir="../", title="Open a folder")
 
 # TODO: vérifier la compatibilité avec d'autres OS
 # TODO: does not work for big folders
+# TODO: fonction qui merge des dictionnaires
 
-# path = "C:/Users/pierr/OneDrive/Documents/ZetaTest"
+path = "C:/Users/pierr/OneDrive/Documents/ZetaTest"
 
 
 def analyse_files_of_folder(path_folder_to_analyse):
@@ -21,6 +24,7 @@ def analyse_files_of_folder(path_folder_to_analyse):
     list_folders = os.listdir(path_folder_to_analyse)
     for folder in list_folders:
         potential_folder_path = path_folder_to_analyse + "/" + folder
+
         if potential_folder_path == "C:/Users/pierr/OneDrive/Documents/ZetaTest/test_folder_1":
             print("Break")
 
@@ -56,12 +60,14 @@ def analyse_files_of_folder(path_folder_to_analyse):
     current_folder.size_go = current_folder.size
     current_folder.nb_folders_go = len(current_folder.sub_folders)
     current_folder.nb_files_go = current_folder.nb_files
+    current_folder.files_by_type_go = copy.deepcopy(current_folder.files_by_type)54
 
     # update the global stats
     for sub_folder in current_folder.sub_folders:
         current_folder.size_go += sub_folder.size_go
         current_folder.nb_files_go += sub_folder.nb_files_go
         current_folder.nb_folders_go += sub_folder.nb_folders_go
+        current_folder.merge_dicts(sub_folder.files_by_type_go)
 
     return current_folder
 
@@ -69,11 +75,13 @@ def analyse_files_of_folder(path_folder_to_analyse):
 if path != "":  # otherwise the user did not select a folder
     # print the results
     main_folder = analyse_files_of_folder(path)
+    proper_unit_size_go, name_unit_size_go = show_in_proper_unit(main_folder.size_go)
+    proper_unit_nb_files_go, name_unit_nb_files_go = show_in_proper_unit(main_folder.nb_files_go)
 
     print("\nResults of the analysis: \n\n")
     print("Global results:\n")
     print(f"Path: {main_folder.path}")
-    print(f"Size (globally): {main_folder.size_go}")
+    print(f"Size (globally): {proper_unit_size_go} {name_unit_size_go}")
     print(f"Number of files (globally): {main_folder.nb_files_go}")
     print(f"Number of folders (globally): {main_folder.nb_folders_go}")
 
@@ -84,9 +92,19 @@ if path != "":  # otherwise the user did not select a folder
     print(f"Number of files in this folder (locally): {main_folder.nb_files}")
 
     print("\n\n")
+    print("Size of the files locally :")
     for key in main_folder.files_by_type.keys():
         if key == "":
             print(f"Size of the files with no extension: {main_folder.files_by_type[key]}")
 
         else:
             print(f"Size of {key} files: {main_folder.files_by_type[key]}")
+
+    print("\n")
+    print("Size of the files by type globally: ")
+    for key in main_folder.files_by_type_go.keys():
+        if key == "":
+            print(f"Size of the files with no extension: {main_folder.files_by_type_go[key]}")
+
+        else:
+            print(f"Size of {key} files: {main_folder.files_by_type_go[key]}")
