@@ -14,11 +14,3 @@ class Folder:
         self.nb_files_go = 0
         self.nb_files = 0
         self.size = 0
-
-    def count_sub_directories(self):
-        for folder in self.sub_folders:
-            folder.count_sub_directories()
-            self.nb_files_go += folder.nb_files
-            self.nb_folders_go += len(folder.sub_folders)
-            self.size_go += folder.size
-

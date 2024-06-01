@@ -5,16 +5,29 @@ import os
 from Folder import Folder
 
 # ask the user the path of the directory he wants to have stats on
-# path = filedialog.askdirectory(initialdir="../", title="Open a folder")
+
+path = filedialog.askdirectory(initialdir="../", title="Open a folder")
 
 # TODO: vérifier la compatibilité avec d'autres OS
-# TODO: comprendre la différence entre 'Taille' et 'Sur Disque'
+# TODO: does not work for big folders
 
-path = "C:/Users/pierr/OneDrive/Documents/ZetaTest"
+# path = "C:/Users/pierr/OneDrive/Documents/ZetaTest"
 
 
 def analyse_files_of_folder(path_folder_to_analyse):
     current_folder = Folder(path_folder_to_analyse)
+
+    # globally
+    list_folders = os.listdir(path_folder_to_analyse)
+    for folder in list_folders:
+        potential_folder_path = path_folder_to_analyse + "/" + folder
+        if potential_folder_path == "C:/Users/pierr/OneDrive/Documents/ZetaTest/test_folder_1":
+            print("Break")
+
+        if os.path.isdir(potential_folder_path):
+            sub_folder = analyse_files_of_folder(potential_folder_path)
+            current_folder.sub_folders.append(sub_folder)
+            current_folder.nb_folders_go += 1
 
     # locally
     for file in os.listdir(path_folder_to_analyse):
@@ -38,25 +51,24 @@ def analyse_files_of_folder(path_folder_to_analyse):
             # update the current_folder stats
             current_folder.size += size_of_current_file
             current_folder.nb_files += 1
-            current_folder.size_go += size_of_current_file
-            current_folder.nb_files_go += 1
 
-    # globally
-    list_folders = os.listdir(path_folder_to_analyse)
-    for folder in list_folders:
-        potential_folder_path = path_folder_to_analyse + "/" + folder
+    # set the global stats to the local stats (before counting the sub folder)
+    current_folder.size_go = current_folder.size
+    current_folder.nb_folders_go = len(current_folder.sub_folders)
+    current_folder.nb_files_go = current_folder.nb_files
 
-        if os.path.isdir(potential_folder_path):
-            sub_folder = analyse_files_of_folder(potential_folder_path)
-            current_folder.sub_folders.append(sub_folder)
-            current_folder.nb_folders_go += 1
+    # update the global stats
+    for sub_folder in current_folder.sub_folders:
+        current_folder.size_go += sub_folder.size_go
+        current_folder.nb_files_go += sub_folder.nb_files_go
+        current_folder.nb_folders_go += sub_folder.nb_folders_go
 
     return current_folder
 
 
 if path != "":  # otherwise the user did not select a folder
+    # print the results
     main_folder = analyse_files_of_folder(path)
-    main_folder.count_sub_directories()
 
     print("\nResults of the analysis: \n\n")
     print("Global results:\n")
