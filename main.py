@@ -2,6 +2,7 @@
 
 from tkinter import filedialog
 import os
+import matplotlib.pyplot as plt
 from Folder import Folder
 from show_in_proper_unit import show_in_proper_unit
 import copy
@@ -13,7 +14,6 @@ path = filedialog.askdirectory(initialdir="../", title="Open a folder")
 # TODO: vérifier la compatibilité avec d'autres OS
 
 # path = "C:/Users/pierr/OneDrive/Documents/ZetaTest"
-# path = "C:/Users/pierr/OneDrive/Documents/ZetaTest/another test (2)/"
 
 
 def analyse_files_of_folder(path_folder_to_analyse):
@@ -74,37 +74,67 @@ if path != "":  # otherwise the user did not select a folder
     proper_unit_size_go, name_unit_size_go = show_in_proper_unit(main_folder.size_go)
     proper_unit_nb_files_go, name_unit_nb_files_go = show_in_proper_unit(main_folder.nb_files_go)
 
+
+    """
+    DO NOT SHOW IN THE PIE CHART, SHOW NEXT TO IT
+    
+    
     print("\nResults of the analysis: \n\n")
     print("Global results:\n")
     print(f"Path: {main_folder.path}")
     print(f"Size (globally): {proper_unit_size_go} {name_unit_size_go}")
     print(f"Number of files (globally): {main_folder.nb_files_go}")
     print(f"Number of folders (globally): {main_folder.nb_folders_go}")
-
+    
+    SAME BUT LOCAL (add switch global/local)
     print("\nLocal results: \n")
     my_list = [local_folder.path for local_folder in main_folder.sub_folders]
     print(f"Sub-folders (locally): {my_list}")
     print(f"Number of folders: {len(main_folder.sub_folders)}")
     print(f"Number of files in this folder (locally): {main_folder.nb_files}")
-
-    print("\n\n")
-    print("Size of the files locally :")
+    
+    
+    """
+    data_files_local = []
+    data_files_local_label = []
     for key in main_folder.files_by_type.keys():
         if key == "":
-            print(f"Size of the files with no extension: {main_folder.files_by_type[key]}")
+            data_files_local.append(main_folder.files_by_type[key])
+            data_files_local_label.append("No extension")
 
         else:
-            print(f"Size of {key} files: {main_folder.files_by_type[key]}")
+            data_files_local.append(main_folder.files_by_type[key])
+            data_files_local_label.append(key)
 
     stats_files = main_folder.generate_files_stats()
-    print("\n")
-    print("% of storage taken by type globally: ")
+    data_files_by_type = []
+    data_files_by_type_label = []
+    other_percentage = 0
+
     for key in stats_files.keys():
-        if stats_files[key] > 1:
+        if stats_files[key] > 2:
             if key == "":
-                print(f"% taken by files with no extension: {stats_files[key]} %")
+                data_files_by_type.append(stats_files[key])
+                data_files_by_type_label.append("No extension")
 
             else:
-                print(f"% taken by {key} files: {stats_files[key]} %")
+                data_files_by_type.append(stats_files[key])
+                data_files_by_type_label.append(key)
 
+        else:
+            other_percentage += stats_files[key]
 
+    data_files_by_type_label.append("Others")
+    data_files_by_type.append(other_percentage)
+
+    # explode the biggest value
+    max_value = max(data_files_by_type)
+    max_index = data_files_by_type.index(max_value)
+    explode_value = tuple([0 if i != max_index else 0.1 for i in range(len(data_files_by_type))])
+
+    plt.pie(data_files_by_type, labels=data_files_by_type_label, startangle=90, shadow=True, autopct='%.2f%%',
+            explode=explode_value)
+    plt.title = f"Stats for folder : {os.path.basename(os.path.normpath(path))}"
+    plt.axis("equal")
+
+    plt.show()
