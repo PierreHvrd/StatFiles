@@ -8,13 +8,12 @@ import copy
 
 # ask the user the path of the directory he wants to have stats on
 
-# path = filedialog.askdirectory(initialdir="../", title="Open a folder")
+path = filedialog.askdirectory(initialdir="../", title="Open a folder")
 
 # TODO: vérifier la compatibilité avec d'autres OS
-# TODO: does not work for big folders
-# TODO: fonction qui merge des dictionnaires
 
-path = "C:/Users/pierr/OneDrive/Documents/ZetaTest"
+# path = "C:/Users/pierr/OneDrive/Documents/ZetaTest"
+# path = "C:/Users/pierr/OneDrive/Documents/ZetaTest/another test (2)/"
 
 
 def analyse_files_of_folder(path_folder_to_analyse):
@@ -24,9 +23,6 @@ def analyse_files_of_folder(path_folder_to_analyse):
     list_folders = os.listdir(path_folder_to_analyse)
     for folder in list_folders:
         potential_folder_path = path_folder_to_analyse + "/" + folder
-
-        if potential_folder_path == "C:/Users/pierr/OneDrive/Documents/ZetaTest/test_folder_1":
-            print("Break")
 
         if os.path.isdir(potential_folder_path):
             sub_folder = analyse_files_of_folder(potential_folder_path)
@@ -43,7 +39,7 @@ def analyse_files_of_folder(path_folder_to_analyse):
             for key in current_folder.files_by_type.keys():
                 if key == extension:
                     current_folder.files_by_type[extension] = (current_folder.files_by_type[extension][0] + 1,
-                                                               current_folder.files_by_type[extension][0] +
+                                                               current_folder.files_by_type[extension][1] +
                                                                size_of_current_file)
 
                     extension_present = True
@@ -100,11 +96,15 @@ if path != "":  # otherwise the user did not select a folder
         else:
             print(f"Size of {key} files: {main_folder.files_by_type[key]}")
 
+    stats_files = main_folder.generate_files_stats()
     print("\n")
-    print("Size of the files by type globally: ")
-    for key in main_folder.files_by_type_go.keys():
-        if key == "":
-            print(f"Size of the files with no extension: {main_folder.files_by_type_go[key]}")
+    print("% of storage taken by type globally: ")
+    for key in stats_files.keys():
+        if stats_files[key] > 1:
+            if key == "":
+                print(f"% taken by files with no extension: {stats_files[key]} %")
 
-        else:
-            print(f"Size of {key} files: {main_folder.files_by_type_go[key]}")
+            else:
+                print(f"% taken by {key} files: {stats_files[key]} %")
+
+

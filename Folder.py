@@ -17,6 +17,7 @@ class Folder:
         self.size = 0
 
     def merge_dicts(self, dict_to_merge_from):
+
         for key in dict_to_merge_from.keys():
             if key in self.files_by_type_go.keys():  # optimization ?
 
@@ -27,3 +28,10 @@ class Folder:
 
             else:
                 self.files_by_type_go[key] = dict_to_merge_from[key]
+
+    def generate_files_stats(self):
+        stats_files = {}
+        for key in self.files_by_type_go.keys():
+            stats_files[key] = round((self.files_by_type_go[key][1] / self.size_go) * 100, 2)
+
+        return stats_files
